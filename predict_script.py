@@ -9,7 +9,7 @@ from autogluon.vision import ObjectDetector
 
 detector = ObjectDetector.load('enemy_detector.ag')
 
-img_file = 'IMG_2293.jpg'
+img_file = 'test.jpg'
 
 image_array = image.imread(img_file)
 
