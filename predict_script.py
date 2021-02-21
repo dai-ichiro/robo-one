@@ -27,4 +27,4 @@ class_ids = np.array([class_names.index(i) for i in list(selected_result.iloc[:,
 utils.viz.plot_bbox(image_array, bounding_boxes, scores=scores,
                     labels=class_ids, class_names = class_names, absolute_coordinates=False)
 
-plt.show()
+plt.savefig('result.jpg')
