@@ -68,17 +68,12 @@ for i in range(len(video_list)):
     
         new_root = ET.Element('annotation')
     
-        new_filename = ET.SubElement(new_root, 'filename')
-        new_filename.text = jpeg_filename
+        new_filename = ET.SubElement(new_root, 'filename').text = jpeg_filename
 
         Size = ET.SubElement(new_root, 'size')
-        Width = ET.SubElement(Size, 'width')
-        Height = ET.SubElement(Size, 'height')
-        Depth = ET.SubElement(Size, 'depth')
-
-        Width.text = str(frame.shape[1])
-        Height.text = str(frame.shape[0])
-        Depth.text = str(frame.shape[2])
+        Width = ET.SubElement(Size, 'width').text = str(frame.shape[1])
+        Height = ET.SubElement(Size, 'height').text = str(frame.shape[0])
+        Depth = ET.SubElement(Size, 'depth').text = str(frame.shape[2])
 
         Object = ET.SubElement(new_root, 'object')
     
@@ -89,15 +84,10 @@ for i in range(len(video_list)):
         Difficult.text = '0'
 
         Bndbox = ET.SubElement(Object, 'bndbox')
-        Xmin = ET.SubElement(Bndbox, 'xmin')
-        Ymin = ET.SubElement(Bndbox, 'ymin')
-        Xmax = ET.SubElement(Bndbox, 'xmax')
-        Ymax = ET.SubElement(Bndbox, 'ymax')
-
-        Xmin.text = str(pred_bbox[0])
-        Ymin.text = str(pred_bbox[1])
-        Xmax.text = str(pred_bbox[0]+pred_bbox[2])
-        Ymax.text = str(pred_bbox[1]+pred_bbox[3])
+        Xmin = ET.SubElement(Bndbox, 'xmin').text = str(pred_bbox[0])
+        Ymin = ET.SubElement(Bndbox, 'ymin').text = str(pred_bbox[1])
+        Xmax = ET.SubElement(Bndbox, 'xmax').text = str(pred_bbox[0]+pred_bbox[2])
+        Ymax = ET.SubElement(Bndbox, 'ymax').text = str(pred_bbox[1]+pred_bbox[3])
 
         new_tree = ET.ElementTree(new_root) 
 
