@@ -4,9 +4,9 @@ from matplotlib import pyplot as plt
 from mxnet import image
 from gluoncv import utils
 
-from autogluon.vision import ObjectDetector
+from gluoncv.auto.tasks.object_detection import ObjectDetection
 
-detector = ObjectDetector.load('enemy_detector.ag')
+detector = ObjectDetection.load('detector.pkl')
 
 image_array = image.imread('test.jpg')
 
