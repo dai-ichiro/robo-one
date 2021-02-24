@@ -16,9 +16,9 @@ selected_result = result.query('predict_score > 0.8')
 
 class_ids , class_names = selected_result['predict_class'].factorize()
 
-bounding_boxes = np.array([[x[i] for i in x.keys()] for x in list(selected_result.iloc[:,2])])
+bounding_boxes = np.array([[x[i] for i in x.keys()] for x in list(selected_result['predict_rois'])])
 
-scores = np.array(selected_result.iloc[:,1])
+scores = np.array(selected_result['predict_score'])
 
 utils.viz.plot_bbox(image_array, bounding_boxes, scores=scores,
                     labels=class_ids, class_names = class_names, absolute_coordinates=False)
