@@ -1,4 +1,3 @@
-from os import F_TEST
 from gluoncv.auto.tasks.object_detection import ObjectDetection
 import autogluon.core as ag
 
