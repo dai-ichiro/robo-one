@@ -15,10 +15,10 @@ python predict_script.py
 ## Environment
 
 ~~~
-Windows 10 (Build 21318) with GTX 1080
-NVIDIA Driver 465.42 
+Windows 10 (Build 21364) with GTX 1080
+NVIDIA Driver 470.14 
 Ubuntu 18.04 on WLS2
-python 3.6.9
+python 3.7.5
 ~~~
  
 ~~~
