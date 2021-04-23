@@ -5,7 +5,7 @@ https://touch-sp.hatenablog.com/entry/2021/01/18/225734
 ## How to use
 
 ~~~
-git clone https://github.com/dai-ichiro/robo-one.git
+git clone -b gluoncv_auto https://github.com/dai-ichiro/robo-one.git
 cd robo-one
 python make_dataset.py
 python train_script.py
