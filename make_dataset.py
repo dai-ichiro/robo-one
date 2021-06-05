@@ -3,7 +3,7 @@ import mxnet as mx
 from gluoncv import model_zoo
 from gluoncv.model_zoo.siamrpn.siamrpn_tracker import SiamRPNTracker
 import cv2
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 
 #=========================================================
 ctx = mx.gpu()
