@@ -12,7 +12,7 @@ image_array = image.imread('test.jpg')
 
 result = detector.predict(image_array)
 
-selected_result = result.query('predict_score > 0.8')
+selected_result = result.query('predict_score > 0.85')
 
 class_ids , class_names = selected_result['predict_class'].factorize()
 
