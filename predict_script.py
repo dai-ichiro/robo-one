@@ -23,4 +23,4 @@ scores = np.array(selected_result['predict_score'])
 utils.viz.plot_bbox(image_array, bounding_boxes, scores=scores,
                     labels=class_ids, class_names = class_names, absolute_coordinates=False)
 
-plt.savefig('result.jpg')
+plt.show()
