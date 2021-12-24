@@ -3,7 +3,7 @@ import mxnet as mx
 from gluoncv import model_zoo
 from gluoncv.model_zoo.siamrpn.siamrpn_tracker import SiamRPNTracker
 import cv2
-import xml.etree.ElementTree as ET
+import pandas as pd
 
 #=========================================================
 ctx = mx.gpu()
@@ -12,18 +12,25 @@ video_list = ['video_1.mp4', 'video_2.mp4']
 
 class_list = ['target', 'green']
 
-
-
 #=========================================================
+os.makedirs('images', exist_ok=True)
+dataset_list = []
 
-out_path = 'train_data'
-annotation_dir = os.path.join(out_path, 'Annotations')
-main_dir =  os.path.join(out_path, 'ImageSets/Main')
-jpegimages_dir = os.path.join(out_path, 'JPEGImages')
+# 物体の位置と動画のサイズを調べる
+init_rect_list = [] #(xmin, ymin, width, heigth)
+video_size = []     #(height, width)
+for video in video_list:
+    cap = cv2.VideoCapture(video)
+    ret, img = cap.read()
+    cap.release()
 
-os.makedirs(annotation_dir, exist_ok=True)
-os.makedirs(main_dir, exist_ok=True)
-os.makedirs(jpegimages_dir, exist_ok=True)
+    source_window = "draw_rectangle"
+    cv2.namedWindow(source_window)
+    rect = cv2.selectROI(source_window, img, False, False)
+
+    init_rect_list.append(rect)
+    video_size.append(img.shape[0:2])
+    cv2.destroyAllWindows()
 
 # モデルを取得する
 net = model_zoo.get_model('siamrpn_alexnet_v2_otb15', pretrained=True, root='./models', ctx=ctx)
@@ -31,65 +38,48 @@ tracker = SiamRPNTracker(net)
 
 jpeg_filenames_list = []
 
-for i in range(len(video_list)):
+for i, video_file in enumerate(video_list):
 
     # mp4データを読み込む
     video_frames = []
-    cap = cv2.VideoCapture(video_list[i])
+    cap = cv2.VideoCapture(video_file)
     while(True):
         ret, img = cap.read()
         if not ret:
             break
         video_frames.append(img)
 
+    # 動画のサイズ
+    height, width = video_size[i]
+
     for ind, frame in enumerate(video_frames):
         if ind == 0:
-            tracker.init(frame, first_position_list[i], ctx=ctx)
-            pred_bbox = first_position_list[i]
+            tracker.init(frame, init_rect_list[i], ctx=ctx)
+            pred_bbox = init_rect_list[i]
         else:
             outputs = tracker.track(frame, ctx=ctx)
             pred_bbox = outputs['bbox']
 
-        pred_bbox = list(map(int, pred_bbox))
+        xmin = pred_bbox[0] / width
+        xmax = (pred_bbox[0] + pred_bbox[2]) / width
+        ymin = pred_bbox[1] / height
+        ymax = (pred_bbox[1] + pred_bbox[3]) / height
 
-        filename = '%d_%06d'%(i, ind)
+        jpeg_filename = '%d_%06d.jpg'%(i, ind)
+        jpeg_path = os.path.join('images', jpeg_filename)
 
-        #画像の保存
-        jpeg_filename = filename + '.jpg'
-        cv2.imwrite(os.path.join(jpegimages_dir, jpeg_filename), frame)
+        # 画像の保存
+        cv2.imwrite(jpeg_path, frame)
 
-        #テキストファイルの作成
-        jpeg_filenames_list.append(filename)
+        dataset_list.append({
+            'image': jpeg_path,
+            'class': class_list[i],
+            'xmin': xmin,
+            'ymin': ymin,
+            'xmax': xmax,
+            'ymax': ymax,
+            'difficult' : 0
+            })
 
-        #XMLファイルの保存
-        xml_filename = filename + '.xml'
-    
-        new_root = ET.Element('annotation')
-    
-        ET.SubElement(new_root, 'filename').text = jpeg_filename
-
-        Size = ET.SubElement(new_root, 'size')
-        ET.SubElement(Size, 'width').text = str(frame.shape[1])
-        ET.SubElement(Size, 'height').text = str(frame.shape[0])
-        ET.SubElement(Size, 'depth').text = str(frame.shape[2])
-
-        Object = ET.SubElement(new_root, 'object')
-    
-        ET.SubElement(Object, 'name').text = class_list[i]
-
-        ET.SubElement(Object, 'difficult').text = '0'
-
-        Bndbox = ET.SubElement(Object, 'bndbox')
-        ET.SubElement(Bndbox, 'xmin').text = str(pred_bbox[0])
-        ET.SubElement(Bndbox, 'ymin').text = str(pred_bbox[1])
-        ET.SubElement(Bndbox, 'xmax').text = str(pred_bbox[0]+pred_bbox[2])
-        ET.SubElement(Bndbox, 'ymax').text = str(pred_bbox[1]+pred_bbox[3])
-
-        new_tree = ET.ElementTree(new_root) 
-
-        new_tree.write(os.path.join(annotation_dir, xml_filename))
-
-#テキストファイルの保存
-text = "\n".join(jpeg_filenames_list)
-with open(os.path.join(main_dir, 'train.txt'), "w") as f:
-    f.write(text)
+df = pd.DataFrame(dataset_list)
+df.to_pickle('dataset.pkl')
